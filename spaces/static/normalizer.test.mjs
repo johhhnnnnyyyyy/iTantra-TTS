@@ -17,9 +17,20 @@ test("Hindi W2 rules preserve unsafe decimal currency while normalizing safe for
   assert.ok(result.warnings.includes("UNSAFE_DECIMAL_CURRENCY_LEFT_UNCHANGED"));
 });
 
-test("other browser languages receive safe cleanup, segmentation, and an explicit numeric preservation warning", () => {
+test("Bengali expands safe numeric forms and segments sentences", () => {
   const result = normalizeForSpeech("  আমি 12 টাকায় আসব।  আবার দেখা হবে। ", "bn");
-  assert.equal(result.normalizedText, "আমি 12 টাকায় আসব। আবার দেখা হবে।");
-  assert.deepEqual(result.sentences, ["আমি 12 টাকায় আসব।", "আবার দেখা হবে।"]);
-  assert.ok(result.warnings.includes("NUMERIC_FORM_LEFT_UNCHANGED"));
+  assert.equal(result.normalizedText, "আমি বারো টাকায় আসব। আবার দেখা হবে।");
+  assert.deepEqual(result.sentences, ["আমি বারো টাকায় আসব।", "আবার দেখা হবে।"]);
+  assert.equal(result.rule, "indic-browser-v1");
+});
+
+test("every Indic route has native cardinal normalization and preserves unsafe forms", () => {
+  for (const language of ["bn", "gu", "kn", "ml", "mr", "ta", "te", "or"]) {
+    const normalized = normalizeForSpeech("₹25 at 05:30, 20%. 12.50 12/10/2026 1234", language);
+    assert.notEqual(normalized.normalizedText, "₹25 at 05:30, 20%. 12.50 12/10/2026 1234");
+    assert.doesNotMatch(normalized.normalizedText, /05:30/);
+    assert.ok(normalized.warnings.includes("UNSAFE_DECIMAL_NUMBER_LEFT_UNCHANGED"));
+    assert.ok(normalized.warnings.includes("AMBIGUOUS_DATE_LEFT_UNCHANGED"));
+    assert.ok(normalized.warnings.includes("UNSAFE_NUMBER_LEFT_UNCHANGED"));
+  }
 });

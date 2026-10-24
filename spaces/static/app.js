@@ -189,6 +189,8 @@ import { normalizeForSpeech } from "./normalizer.js";
       setStatus("Enter 1–200 characters in the selected spoken language.");
       return;
     }
+    const normalized = normalizeForSpeech(input, selectedLanguage);
+    showNormalization(normalized);
     if (selectedPrecision === "int4") {
       setStatus("INT4/W4A8 is intentionally local-engine only: it requires iTantra’s native custom operator. This page will not substitute INT8.");
       setMetrics();
@@ -205,8 +207,6 @@ import { normalizeForSpeech } from "./normalizer.js";
     }
     synthesizeButton.disabled = true;
     try {
-      const normalized = normalizeForSpeech(input, selectedLanguage);
-      showNormalization(normalized);
       setStatus("Fetching the selected pinned INT8 pack and creating browser sessions…");
       const loaded = await loadLanguage(selectedLanguage);
       setStatus("Synthesizing locally in this browser…");

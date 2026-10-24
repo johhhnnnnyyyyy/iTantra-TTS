@@ -1,4 +1,9 @@
+import { INDIC_CARDINALS } from "./indic-cardinals.js";
+
 const RULE_VERSION = "w2-browser-v1";
+const INDIC_RULE_VERSION = "indic-browser-v1";
+const INDIC_RUPEES = { bn: "টাকা", gu: "રૂપિયા", kn: "ರೂಪಾಯಿ", ml: "രൂപ", mr: "रुपये", ta: "ரூபாய்", te: "రూపాయలు", or: "ଟଙ୍କା" };
+const INDIC_PERCENT = { bn: "শতাংশ", gu: "ટકા", kn: "ಶೇಕಡಾ", ml: "ശതമാനം", mr: "टक्के", ta: "சதவீதம்", te: "శాతం", or: "ପ୍ରତିଶତ" };
 
 const HINDI_UNDER_HUNDRED = [
   "शून्य", "एक", "दो", "तीन", "चार", "पांच", "छह", "सात", "आठ", "नौ", "दस", "ग्यारह", "बारह", "तेरह", "चौदह", "पंद्रह", "सोलह", "सत्रह", "अठारह", "उन्नीस",
@@ -56,18 +61,36 @@ const normalizeHindi = (text, warnings) => {
   result = result.replace(/\b(\d+)%/g, (_, amount) => `${hindiNumber(amount)} प्रतिशत`);
   return replaceSafeNumbers(result, hindiNumber, warnings);
 };
+const normalizeIndic = (text, language, warnings) => {
+  const words = INDIC_CARDINALS[language];
+  const timeWord = (value) => words[Number(value)];
+  const toWords = (value) => {
+    const number = Number(value);
+    if (value.length > 1 && value.startsWith("0") || number > 99) {
+      warnings.push("UNSAFE_NUMBER_LEFT_UNCHANGED");
+      return value;
+    }
+    return words[number];
+  };
+  let result = text.replace(/₹(\d{1,2})\b/g, (_, amount) => `${toWords(amount)} ${INDIC_RUPEES[language]}`);
+  result = result.replace(/\b([01]?\d|2[0-3]):([0-5]\d)\b/g, (_, hour, minute) => Number(minute) === 0 ? timeWord(hour) : `${timeWord(hour)} ${timeWord(minute)}`);
+  result = result.replace(/\b(\d{1,2})%/g, (_, amount) => `${toWords(amount)} ${INDIC_PERCENT[language]}`);
+  return result.replace(/\b\d+\b/g, toWords);
+};
 
 export const normalizeForSpeech = (input, language) => {
   if (typeof input !== "string" || !input.trim()) throw new Error("text must contain at least one non-whitespace character");
   let text = input.normalize("NFKC").replace(/\s+/g, " ").trim();
   const warnings = [];
   let rule = "browser-cleanup-v1";
-  if (language === "en" || language === "hi") {
+  if (language === "en" || language === "hi" || INDIC_CARDINALS[language]) {
     const protectedForms = protectUnsafeForms(text, warnings);
-    text = language === "en" ? normalizeEnglish(protectedForms.text, warnings) : normalizeHindi(protectedForms.text, warnings);
+    if (language === "en") text = normalizeEnglish(protectedForms.text, warnings);
+    else if (language === "hi") text = normalizeHindi(protectedForms.text, warnings);
+    else text = normalizeIndic(protectedForms.text, language, warnings);
     text = restoreUnsafeForms(text, protectedForms.entries);
-    rule = RULE_VERSION;
-  } else if (/\d/.test(text)) warnings.push("NUMERIC_FORM_LEFT_UNCHANGED");
+    rule = language === "en" || language === "hi" ? RULE_VERSION : INDIC_RULE_VERSION;
+  }
   text = text.replace(/\s+([,.;:!?।])/g, "$1");
   const sentences = text.split(/(?<=[.!?।])\s+/).map((sentence) => sentence.trim()).filter(Boolean);
   return Object.freeze({ originalText: input, normalizedText: text, sentences: Object.freeze(sentences), rule, warnings: Object.freeze(warnings) });

@@ -32,11 +32,12 @@ INT8 graphs use integer operators such as `ConvInteger`.
   timing and real-time factor. Cross-origin isolation allows ONNX Runtime Web
   to use up to four WASM threads where the visitor's browser supports it.
 - Normalize the exact text sent to the model and show it before playback. The
-  browser companion applies the project W2 rules for English and Hindi,
-  including safe number, time, currency and percentage expansion. Every
-  browser language receives Unicode cleanup, punctuation cleanup and sentence
-  segmentation; numeric forms outside the English/Hindi rule set are preserved
-  rather than guessed.
+  browser companion applies project W2 rules for English and Hindi and native
+  cardinal expansion for every supported Indic language. Safe numbers from
+  zero through ninety-nine, times, rupee amounts and percentages are expanded;
+  Unicode cleanup, punctuation cleanup and sentence segmentation apply to all
+  routes. Ambiguous dates, decimals, identifiers, leading-zero values and
+  numbers above ninety-nine are preserved rather than guessed.
 
 ## What remains in the full local engine
 
