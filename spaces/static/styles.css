@@ -69,6 +69,11 @@ button { min-height: 46px; width: 100%; margin-top: 21px; border: 1px solid var(
 button:hover { border-color: var(--navy-deep); background: var(--navy-deep); }
 button:disabled { cursor: progress; opacity: .7; }
 .status { min-height: 24px; margin: 13px 0 0; color: #4e6072; font-size: .88rem; line-height: 1.5; }
+.normalization { margin-top: 12px; padding: 12px 14px; border-left: 3px solid #d8a543; background: #fbf7ed; color: #4e6072; font-size: .82rem; line-height: 1.5; }
+.normalization p { margin: 0; }
+.normalization p + p { margin-top: 5px; }
+.normalization strong { display: block; color: #334a61; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+#normalized-text { display: block; margin-top: 3px; color: #263f58; overflow-wrap: anywhere; }
 .audio-output { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 audio { width: min(100%, 640px); margin-top: 13px; }
 #download { margin-top: 13px; color: #1e527e; font-size: .87rem; font-weight: 650; text-underline-offset: 3px; }

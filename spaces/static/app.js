@@ -1,4 +1,6 @@
 /* Browser-local companion: no browser speech or hosted TTS fallback. */
+import { normalizeForSpeech } from "./normalizer.js";
+
 (() => {
   "use strict";
 
@@ -22,8 +24,22 @@
   const audio = element("audio");
   const download = element("download");
   const metrics = element("metrics");
+  const normalization = element("normalization");
+  const normalizedText = element("normalized-text");
+  const normalizationStatus = element("normalization-status");
 
   const setStatus = (message) => { status.textContent = message; };
+  const showNormalization = (result) => {
+    normalizedText.textContent = result.normalizedText;
+    const suffix = result.warnings.length ? ` Preserved: ${result.warnings.join(", ")}.` : "";
+    normalizationStatus.textContent = `${result.rule} applied across ${result.sentences.length} sentence${result.sentences.length === 1 ? "" : "s"}.${suffix}`;
+    normalization.hidden = false;
+  };
+  const hideNormalization = () => {
+    normalization.hidden = true;
+    normalizedText.textContent = "";
+    normalizationStatus.textContent = "";
+  };
   const setMetrics = ({ load = "Not measured", inference = "Not measured", audioRtf = "Not measured", runtime = runtimeLabel() } = {}) => {
     metrics.innerHTML = [
       ["Model fetch / session", load],
@@ -142,6 +158,25 @@
   };
 
   const selectFeedName = (session, preferred) => session.inputNames.includes(preferred) ? preferred : session.inputNames[0];
+  const synthesizeSentence = async (sentence, selected) => {
+    const tokenIds = tokenize(sentence, selected.tokens);
+    const tokens = new globalThis.ort.Tensor("int64", BigInt64Array.from(tokenIds, BigInt), [1, tokenIds.length]);
+    const melResult = await selected.fastpitch.run({ [selectFeedName(selected.fastpitch, "text")]: tokens });
+    const mel = melResult[selected.fastpitch.outputNames[0]];
+    const waveformResult = await selected.hifigan.run({ [selectFeedName(selected.hifigan, "mel")]: mel });
+    return Float32Array.from(waveformResult[selected.hifigan.outputNames[0]].data);
+  };
+  const stitchSentences = (clips) => {
+    const gap = Math.round(SAMPLE_RATE_HZ * 0.03);
+    const total = clips.reduce((length, clip) => length + clip.length, 0) + Math.max(0, clips.length - 1) * gap;
+    const output = new Float32Array(total);
+    let offset = 0;
+    clips.forEach((clip, index) => {
+      output.set(clip, offset);
+      offset += clip.length + (index < clips.length - 1 ? gap : 0);
+    });
+    return output;
+  };
 
   const synthesize = async () => {
     const selectedLanguage = language.value;
@@ -149,6 +184,7 @@
     const input = text.value.trim();
     audio.hidden = true;
     download.hidden = true;
+    hideNormalization();
     if (!input || input.length > 200) {
       setStatus("Enter 1–200 characters in the selected spoken language.");
       return;
@@ -169,18 +205,16 @@
     }
     synthesizeButton.disabled = true;
     try {
+      const normalized = normalizeForSpeech(input, selectedLanguage);
+      showNormalization(normalized);
       setStatus("Fetching the selected pinned INT8 pack and creating browser sessions…");
       const loaded = await loadLanguage(selectedLanguage);
       setStatus("Synthesizing locally in this browser…");
-      const tokenIds = tokenize(input, loaded.value.tokens);
-      const tokens = new globalThis.ort.Tensor("int64", BigInt64Array.from(tokenIds, BigInt), [1, tokenIds.length]);
       const inferenceStarted = performance.now();
-      const melResult = await loaded.value.fastpitch.run({ [selectFeedName(loaded.value.fastpitch, "text")]: tokens });
-      const mel = melResult[loaded.value.fastpitch.outputNames[0]];
-      const waveformResult = await loaded.value.hifigan.run({ [selectFeedName(loaded.value.hifigan, "mel")]: mel });
-      const waveform = waveformResult[loaded.value.hifigan.outputNames[0]];
+      const clips = [];
+      for (const sentence of normalized.sentences) clips.push(await synthesizeSentence(sentence, loaded.value));
       const inferenceMs = performance.now() - inferenceStarted;
-      const samples = Float32Array.from(waveform.data);
+      const samples = stitchSentences(clips);
       if (!samples.length || samples.some((sample) => !Number.isFinite(sample))) throw new Error("model returned invalid audio");
       const durationMs = samples.length / SAMPLE_RATE_HZ * 1000;
       const blob = toWavBlob(samples);
@@ -212,5 +246,5 @@
     characterCount.textContent = `${text.value.length} / 200`;
   });
   synthesizeButton.addEventListener("click", synthesize);
-  window.iTantraStaticDemo = Object.freeze({ MODEL_SOURCE, BROWSER_INT8_LANGUAGES });
+  window.iTantraStaticDemo = Object.freeze({ MODEL_SOURCE, BROWSER_INT8_LANGUAGES, normalizeForSpeech });
 })();

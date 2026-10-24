@@ -15,3 +15,4 @@ models/artifacts/
 .env
 .env.*
 !.env.example
+:memory:.ses
