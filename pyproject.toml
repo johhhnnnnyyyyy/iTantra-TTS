@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "itantra-tts"
+version = "0.1.0a0"
+description = "Offline-first multilingual text-to-speech core for ordered message playback"
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Kaapi Kudi Commit Adi" }]
+classifiers = ["Development Status :: 2 - Pre-Alpha", "Programming Language :: Python :: 3"]
+dependencies = ["PyYAML>=6.0,<7"]
+
+[project.scripts]
+itantra-tts = "itantra_tts.cli:main"
+
+[project.optional-dependencies]
+demo = ["gradio>=6.0,<7", "numpy>=2.0,<3", "onnxruntime==1.31.0", "psutil>=6.0,<8", "indic-numtowords==1.1.0"]
+api = ["fastapi>=0.115,<1", "uvicorn[standard]>=0.30,<1"]
+research-fp32 = ["torch>=2.0,<3", "transformers>=4.33,<6"]
+conversion = ["onnx>=1.16,<2", "onnxruntime>=1.20,<2", "onnxscript>=0.7,<1"]
+test = ["pytest>=8,<10", "onnx>=1.16,<2", "onnxscript>=0.7,<1"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/itantra_tts"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-q"]
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pyright]
+include = ["src", "tests"]
+pythonVersion = "3.11"
+typeCheckingMode = "strict"

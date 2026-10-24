@@ -1,0 +1,12 @@
+version: 1
+artifacts:
+  echobharat_int8:
+    source: RaunakSaha/echobharat-models
+    upstream_license: see_upstream_repository
+    expected_layout: "<language>/fastpitch-<language>.int8.onnx, hifigan-<language>.int8.onnx, fastpitch-<language>.tokens.json"
+    model_files_not_bundled: true
+  mms_tts_ory_research:
+    source: facebook/mms-tts-ory
+    upstream_license: CC-BY-NC-4.0
+    expected_layout: "model.static-qdq.int8.onnx, vocab.json, config.json"
+    model_files_not_bundled: true

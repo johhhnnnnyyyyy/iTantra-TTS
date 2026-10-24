@@ -1,0 +1,14 @@
+corpus_id: w6-research-v1
+provenance: Project-authored short research prompts; native-speaker review pending.
+redistribution: Internal research fixture; maintainer must decide publication terms.
+sentences:
+  hi: "नमस्ते।"
+  gu: "નમસ્તે."
+  mr: "नमस्कार."
+  kn: "ನಮಸ್ಕಾರ."
+  ml: "നമസ്കാരം."
+  ta: "வணக்கம்."
+  te: "నమస్కారం."
+  or: "ନମସ୍କାର।"
+  bn: "নমস্কার।"
+  en: "Hello."

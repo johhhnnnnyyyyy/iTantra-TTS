@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.22)
+project(itantra_w4a8 LANGUAGES CXX)
+
+set(ORT_HEADER_DIR "" CACHE PATH "Directory containing the matching ONNX Runtime C/C++ headers")
+if(NOT EXISTS "${ORT_HEADER_DIR}/onnxruntime_cxx_api.h")
+  message(FATAL_ERROR "ORT_HEADER_DIR must contain matching ONNX Runtime headers")
+endif()
+if(ANDROID AND NOT ANDROID_ABI STREQUAL "arm64-v8a")
+  message(FATAL_ERROR "Only arm64-v8a is currently targeted by this experimental Android build")
+endif()
+
+add_library(itantra_w4a8 SHARED ../ort_w4a8_matmul.cpp)
+target_compile_features(itantra_w4a8 PRIVATE cxx_std_17)
+target_include_directories(itantra_w4a8 PRIVATE "${ORT_HEADER_DIR}")
+target_compile_options(itantra_w4a8 PRIVATE -Wall -Wextra -Werror)

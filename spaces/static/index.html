@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Browser companion for the iTantra multilingual TTS research engine.">
+    <title>iTantra TTS browser companion</title>
+    <link rel="stylesheet" href="styles.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.all.min.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <main class="page-shell">
+      <header class="site-header">
+        <a class="wordmark" href="#top" aria-label="iTantra TTS home"><span class="mark" aria-hidden="true">iT</span><span>iTantra <span class="wordmark-detail">/ Speech research</span></span></a>
+        <span class="surface-tag">Browser companion</span>
+      </header>
+
+      <div id="top" class="intro">
+        <h1>Hear the text in another language.</h1>
+        <p class="lede">Try the EchoBharat INT8 voice models in your browser. Text and audio stay on this page; the selected public model files are fetched on demand.</p>
+      </div>
+
+      <section class="scope-note" aria-label="Demo scope">
+        <p><strong>Research demo.</strong> This page is not the complete iTantra engine or Android runtime. Its browser timings are separate from the local benchmark results.</p>
+        <p><span>INT8</span> Browser route for nine EchoBharat languages <i aria-hidden="true">·</i> <span>INT4/W4A8</span> run the local engine <i aria-hidden="true">·</i> <span>Odia</span> run the local VITS route</p>
+      </section>
+
+      <section class="workbench" aria-labelledby="try-title">
+        <div class="workbench-heading">
+          <div>
+            <h2 id="try-title">Text to speech</h2>
+            <p>Choose a language and generate audio in this browser.</p>
+          </div>
+          <span class="runtime-label"><span class="status-dot" aria-hidden="true"></span> Runs in your browser</span>
+        </div>
+
+        <label for="text">Text to synthesize</label>
+        <textarea id="text" rows="5" maxlength="200" placeholder="Enter text in the selected spoken language."></textarea>
+        <div class="field-meta"><span>Your text stays in this page.</span><span id="character-count">0 / 200</span></div>
+
+        <div class="controls">
+          <div>
+            <label for="language">Language</label>
+            <select id="language">
+              <option value="hi">Hindi</option>
+              <option value="gu">Gujarati</option>
+              <option value="mr">Marathi</option>
+              <option value="kn">Kannada</option>
+              <option value="ml">Malayalam</option>
+              <option value="ta">Tamil</option>
+              <option value="te">Telugu</option>
+              <option value="or">Odia — local engine</option>
+              <option value="bn">Bengali</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+          <div>
+            <label for="precision">Model format</label>
+            <select id="precision">
+              <option value="int8">INT8 · browser</option>
+              <option value="int4">INT4 / W4A8 · local engine</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="synthesize" type="button">Generate speech</button>
+        <p id="status" class="status" role="status" aria-live="polite">Ready when you are. Choose an INT8 language to begin.</p>
+        <div class="audio-output" aria-live="polite">
+          <audio id="audio" controls hidden></audio>
+          <a id="download" hidden download="itantra-browser.wav">Save WAV</a>
+        </div>
+      </section>
+
+      <section class="metrics-section" aria-labelledby="metrics-title">
+        <div class="section-title"><h2 id="metrics-title">This request</h2><p>Browser measurements</p></div>
+        <dl id="metrics" class="metrics">
+          <div><dt>Model load</dt><dd>Not measured</dd></div>
+          <div><dt>Inference</dt><dd>Not measured</dd></div>
+          <div><dt>Audio duration / RTF</dt><dd>Not measured</dd></div>
+          <div><dt>CPU / memory</dt><dd>Unavailable in standard browser APIs</dd></div>
+        </dl>
+      </section>
+
+      <footer class="local-route" aria-labelledby="local-title">
+        <div class="local-copy"><h2 id="local-title">Run the full research engine locally</h2><p>Use the cloned project for normalization, ordered synthesis, request-level metrics, Odia and the native W4A8 route. Provision the model artifacts first.</p>
+          <details>
+            <summary>Show launch commands</summary>
+            <pre><code>python3.11 -m venv .venv
+.venv/bin/python -m pip install -e '.[demo,api,test]'
+.venv/bin/python tools/unified_research_web.py \\
+  --library "$PWD/build/w4a8/libitantra_w4a8.so" --port 18095</code></pre>
+          </details>
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>

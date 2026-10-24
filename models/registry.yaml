@@ -1,0 +1,15 @@
+version: 1
+languages:
+  hi: {backend: fastpitch_hifigan, source: RaunakSaha/echobharat-models, source_revision: 2ad314c3ecafeb252bac82785ac541325596ac9c, upstream_license: MIT/Apache-2.0}
+  gu: {backend: fastpitch_hifigan, source: RaunakSaha/echobharat-models, source_revision: 2ad314c3ecafeb252bac82785ac541325596ac9c, upstream_license: MIT/Apache-2.0}
+  mr: {backend: fastpitch_hifigan, source: RaunakSaha/echobharat-models, source_revision: 2ad314c3ecafeb252bac82785ac541325596ac9c, upstream_license: MIT/Apache-2.0}
+  kn: {backend: fastpitch_hifigan, source: RaunakSaha/echobharat-models, source_revision: 2ad314c3ecafeb252bac82785ac541325596ac9c, upstream_license: MIT/Apache-2.0}
+  ml: {backend: fastpitch_hifigan, source: RaunakSaha/echobharat-models, source_revision: 2ad314c3ecafeb252bac82785ac541325596ac9c, upstream_license: MIT/Apache-2.0}
+  ta: {backend: fastpitch_hifigan, source: RaunakSaha/echobharat-models, source_revision: 2ad314c3ecafeb252bac82785ac541325596ac9c, upstream_license: MIT/Apache-2.0}
+  te: {backend: fastpitch_hifigan, source: RaunakSaha/echobharat-models, source_revision: 2ad314c3ecafeb252bac82785ac541325596ac9c, upstream_license: MIT/Apache-2.0}
+  bn: {backend: fastpitch_hifigan, source: RaunakSaha/echobharat-models, source_revision: 2ad314c3ecafeb252bac82785ac541325596ac9c, upstream_license: MIT/Apache-2.0}
+  en: {backend: fastpitch_hifigan, source: RaunakSaha/echobharat-models, source_revision: 2ad314c3ecafeb252bac82785ac541325596ac9c, upstream_license: MIT/Apache-2.0}
+  or: {backend: vits_onnx_static_qdq_int8_research, source: facebook/mms-tts-ory, source_revision: 581f221219b728fab4d53efb24e18134bd1a9e28, upstream_license: CC-BY-NC-4.0}
+precision_profiles:
+  int8: {availability: executable, executable: true}
+  int4: {availability: pending_int4_conversion, executable: false}
